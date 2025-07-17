@@ -4,14 +4,14 @@ category: DevLog
 date: 2025-07-17
 ---
 
-大家好，我是 [LemonNeko](https://github.com/LemonNekoGH)，AIRI 的维护者之一。
+大家好，我是 [@LemonNeko](https://github.com/LemonNekoGH)，AIRI 的维护者之一。
 
 ## 回顾
 
 半年前，我第一次尝试写一个可以游玩知名自动化生产模拟经营游戏 [Factorio](https://www.factorio.com/) 的 AI Agent [`airi-factorio`](https://github.com/moeru-ai/airi-factorio)，并在其中进行了这些实践：
 
 - 使用 TypeScript 编写 Factorio Mod：使用 [tstl](https://github.com/TypeScriptToLua/TypeScriptToLua) 来将 TypeScript 代码编译成 Lua 代码。
-- 使用 RCON 与 Factorio Mod 进行交互：使用 [factorio-rcon-api](https://github.com/nekomeowww/factorio-rcon-api) 来与 Factorio 通信，调用 `/c` 命令来执行 Mod 注册的函数。
+- 使用 RCON 与 Factorio Mod 进行交互：使用 [factorio-rcon-api](https://github.com/nekomeowww/factorio-rcon-api) 来与 Factorio 通信，调用 `/c` 命令来执行 Mod 注册的函数。很感谢 [@nekomeowww](https://github.com/nekomeowww)。
 - 使用 LLM 进行决策并且生成 Lua 代码来操作玩家：通过提示词工程来告诉 LLM 如何操作游戏，如何进行规划，并且把与 RCON 交互的代码封装成工具（tool），让 LLM 可以调用。
 - 在游戏内置的聊天系统中与 LLM 进行交互：通过读取游戏的标准输出，使用正则表达式来解析游戏中玩家的聊天内容，发送给 LLM 来处理。
 - Factorio Mod 的热重载：通过为 tstl 写插件的形式来实时监测代码变化，并把新的 Mod 内容通过 RCON 发送给游戏，在收到新的 Mod 代码时卸载所有的接口并且执行一遍 Mod 的代码来实现热重载。但是，如何正确处理 Mod 已经有的状态成了大难题。
@@ -42,4 +42,20 @@ FLE 分为两种模式：
 
 - 使用 Python 编写，LLM 生成 Python 代码并直接在 Python REPL 中执行，可以直接在标准输出中读取结果。由于 Python 的数据集远远多于 Lua，所以生成的准确性更高，也能生成更复杂的代码。
 - Lua mod 中只包含执行操作的原语，比如 place_entity 放置实体，更复杂的逻辑放到 Python 中写，可以减少 Lua mod 出现 bug 的可能，就不用那么频繁的重启游戏。
-- 使用 `/sc` 命令而不是 `/c` 命令来执行 Lua 代码，不会把代码输出在控制台里，保持控制台干净。
+- 使用 `/sc` 命令而不是 `/c` 命令来执行 Lua 代码，不会把代码输出在控制台里，保持控制台干净，只留下需要的内容，简化解析标准输入的难度。
+
+为了能更好的评测 LLM 的能力，他们还认真分析了所有需要的配方的生产流程和难度，总结了一些公式， ~~呐，这就是专业~~ 。
+
+## 回到 `airi-factorio`
+
+那我们要怎么改进 `airi-factorio` 呢？
+
+我不想写 Python，我只熟悉 TypeScript 和 Golang，很巧，我们最近也写了 [mcp-launcher](https://github.com/moeru-ai/mcp-launcher)，一个适用于所有可能的 MCP 服务器的构建器，我们可以配合它来使用 Golang 来实现一个 MCP 服务器，然后让 LLM 来调用它。
+
+那么结构图就从这样：
+
+![structure-before](./assets/structure-before.png)
+
+变成了这样：
+
+![structure-after](./assets/structure-after.png)
