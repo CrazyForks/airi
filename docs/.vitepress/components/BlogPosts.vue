@@ -210,7 +210,6 @@ const svgArts = computedAsync(async () => {
         class="block flex flex-col overflow-hidden border-transparent rounded-xl border-solid bg-white/50 decoration-none shadow-sm outline-2 outline-transparent outline-offset-0 outline transition-all transition-all duration-200 duration-300 ease-in-out dark:bg-black/20 dark:shadow-slate-600/5 hover:shadow-md hover:outline-primary/5 hover:outline-offset-2 [&_.post-card-title]:hover:text-primary dark:hover:outline-primary/25"
       >
         <div class="rounded-t-xl">
-          {{ post.frontmatter?.['preview-cover'] }}
           <ClientOnly v-if="!post.frontmatter?.['preview-cover']?.[isDark ? 'dark' : 'light']">
             <div class="mb-6 h-20 md:h-60">
               <div class="blur-2xl" h="full" w-full v-html="isDark ? svgArts?.[index].dark : svgArts?.[index].light" />
