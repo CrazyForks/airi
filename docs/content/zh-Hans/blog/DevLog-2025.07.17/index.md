@@ -1,0 +1,42 @@
+---
+title: DevLog @ 2025.07.17
+category: DevLog
+date: 2025-07-17
+---
+
+大家好，我是 [LemonNeko](https://github.com/LemonNekoGH)，AIRI 的维护者之一。
+
+## 回顾
+
+半年前，我第一次尝试写一个可以游玩知名自动化生产模拟经营游戏 [Factorio](https://www.factorio.com/) 的 AI Agent [`airi-factorio`](https://github.com/moeru-ai/airi-factorio)，并在其中进行了这些实践：
+
+- 使用 TypeScript 编写 Factorio Mod：使用 [tstl](https://github.com/TypeScriptToLua/TypeScriptToLua) 来将 TypeScript 代码编译成 Lua 代码。
+- 使用 RCON 与 Factorio Mod 进行交互：使用 [factorio-rcon-api](https://github.com/nekomeowww/factorio-rcon-api) 来与 Factorio 通信，调用 `/c` 命令来执行 Mod 注册的函数。
+- 使用 LLM 进行决策并且生成 Lua 代码来操作玩家：通过提示词工程来告诉 LLM 如何操作游戏，如何进行规划，并且把与 RCON 交互的代码封装成工具（tool），让 LLM 可以调用。
+- 在游戏内置的聊天系统中与 LLM 进行交互：通过读取游戏的标准输出，使用正则表达式来解析游戏中玩家的聊天内容，发送给 LLM 来处理。
+- Factorio Mod 的热重载：通过为 tstl 写插件的形式来实时监测代码变化，并把新的 Mod 内容通过 RCON 发送给游戏，在收到新的 Mod 代码时卸载所有的接口并且执行一遍 Mod 的代码来实现热重载。在这个过程中，如何正确处理 Mod 已经有的状态成了大难题。
+
+这让我学到了很多的知识 ~~（尤其是 Lua 的数组索引从 1 开始）~~。
+
+但是，也遇到了非常多的问题，由于我们的主要操作写在 Mod 中，调试起来会非常麻烦，我们需要退出地图回到游戏主界面再重新进入才能应用上 Mod 的改动，如果我们的 Mod 稍微复杂一点，有 `data.lua`，则需要重启游戏。
+
+我们让 LLM 来生成 Lua 代码，然后通过 RCON 调用游戏命令 `/c` 来执行，而 Factorio 一条命令的长度是有限制的，如果我们的代码过长，则需要分多次执行。
+
+目前的代码健壮性很差，可维护性很差，如果有新朋友想来参与开发，甚至只是尝试一下，启动这个项目都是非常困难的。
+
+## Factorio Learning Environment
+
+时间回到现在，我打算好好理一理这个项目，但是我不知道从哪里开始，刚好有人提到了一篇论文 [Factorio Learning Environment](https://arxiv.org/abs/2503.09617)，我来带你简单读一读它。
+
+在这篇论文中，作者提出了一个名为 Factorio Learning Environment (FLE) 的框架，他们在这个环境中测试AI在长期规划、程序合成、资源管理与空间推理方面的能力。
+
+FLE 分为两种模式：
+
+- Lab-play：在 24 个人为设计的关卡中进行测试，资源有限，考察 AI 能否在有限资源下高效搭建流水线。
+- Open-play：无限制大地图，目标是在程序生成的地图上建造最大的工厂，考查AI的长期自主目标制定、探索和扩展能力。
+
+他们评测了 Claude 3.5 Sonnet、GPT-4o、Deepseek-v3、Gemini-2 等多款主流 LLM，但是在 Lab-play 中当时最强的 Claude 3.5 也只完成了 7 个关卡。
+
+读到这里，我开始好奇，他们的评测如此复杂，那在技术上也需要保证可维护性，他们是怎么做到的呢？继续阅读发现，他们的实现方式与 `airi-factorio` 非常相似，但是相对 `airi-factorio` 来说有很多优点：
+
+- 使用 Python 编写，LLM
