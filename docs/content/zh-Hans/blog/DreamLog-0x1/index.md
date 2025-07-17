@@ -190,7 +190,7 @@ Minecraft、Linux 也并不是我旅程的终点，[Factorio（异星工厂）](
 其实早在官方 ChatGPT UI 发布之前，我就已经在折腾这些新时代的 AI 了，像
 [DiscoDiffusion](https://colab.research.google.com/github/alembics/disco-diffusion/blob/main/Disco_Diffusion.ipynb)（早于
 Stable Diffusion，大约在 2021 年底或 2022 年初发布的吧）、DALL-E、Midjourney
-等模型都尝试过，GPT-3（特别是在 [GitHub Copilot](https://en.wikipedia.org/wiki/GitHub_Copilot) 中很有用）都早已成为我生活的一部分了。
+GPT-3（特别是在 [GitHub Copilot](https://en.wikipedia.org/wiki/GitHub_Copilot) 中很有用）都早已成为我生活的一部分了。
 
 所以，最开始的时候，我的感觉是：
 
