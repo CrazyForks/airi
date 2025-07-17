@@ -272,7 +272,6 @@ https://www.reddit.com/r/css/comments/t3am53/pure_css_gradientprogressive_blur_i
 https://codepen.io/Francesco_Maretti/pen/yLPRvXp
 */
 .preview-card-art-image-overlay {
-  content: '';
   height: 50%;
   width: 100%;
   position: absolute;
